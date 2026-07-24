@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import KanbanBoard from './components/KanbanBoard';
 import Calendar from './components/Calendar';
 import Pomodoro from './components/Pomodoro';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, CalendarDays, Timer } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, Timer, Palette } from 'lucide-react';
 
 function App() {
   const [activeTab, setActiveTab] = useState('kanban');
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('app-theme') || 'violet';
+  });
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('app-theme', theme);
+  }, [theme]);
 
+  const cycleTheme = () => {
+    const themes = ['violet', 'cyan', 'emerald', 'rose'];
+    const next = themes[(themes.indexOf(theme) + 1) % themes.length];
+    setTheme(next);
+  };
 
   return (
     <div className="app-container">
@@ -20,24 +32,23 @@ function App() {
         flexDirection: 'column',
         alignItems: 'center',
         padding: '2rem 0',
+        justifySpace: 'space-between',
         gap: '2rem'
       }}>
-        <div>
-          <NavItem icon={<LayoutDashboard />} active={activeTab === 'kanban'} onClick={() => setActiveTab('kanban')} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1 }}>
+          <NavItem icon={<LayoutDashboard />} active={activeTab === 'kanban'} onClick={() => setActiveTab('kanban')} title="Kanban Board" />
+          <NavItem icon={<CalendarDays />} active={activeTab === 'calendar'} onClick={() => setActiveTab('calendar')} title="Habit Tracker" />
+          <NavItem icon={<Timer />} active={activeTab === 'pomodoro'} onClick={() => setActiveTab('pomodoro')} title="Pomodoro Timer" />
         </div>
+
+        {/* Theme Accent Picker Button */}
         <div>
-          <NavItem icon={<CalendarDays />} active={activeTab === 'calendar'} onClick={() => setActiveTab('calendar')} />
-        </div>
-        <div>
-          <NavItem icon={<Timer />} active={activeTab === 'pomodoro'} onClick={() => setActiveTab('pomodoro')} />
+          <NavItem icon={<Palette size={20} />} active={false} onClick={cycleTheme} title={`Current Theme: ${theme}`} />
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
-        
-
-
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
         <AnimatePresence mode="wait">
           {activeTab === 'kanban' && (
             <motion.div
@@ -51,7 +62,7 @@ function App() {
               <div className="header" style={{ padding: '2rem 2rem 1.5rem 0' }}>
                 <div>
                   <h1>Task Board</h1>
-                  <p>Your beautiful space for getting things done.</p>
+                  <p>Organize, prioritize, and conquer your workload</p>
                 </div>
               </div>
               <KanbanBoard />
@@ -89,12 +100,13 @@ function App() {
   );
 }
 
-function NavItem({ icon, active, onClick }) {
+function NavItem({ icon, active, onClick, title }) {
   return (
     <motion.button
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       onClick={onClick}
+      title={title}
       style={{
         background: active ? 'var(--accent-gradient)' : 'transparent',
         color: active ? 'white' : 'var(--text-muted)',

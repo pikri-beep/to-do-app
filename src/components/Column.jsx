@@ -4,7 +4,7 @@ import TaskCard from './TaskCard';
 import { Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function Column({ column, tasks, onAddTask, onDeleteTask }) {
+export default function Column({ column, tasks, onAddTask, onDeleteTask, onEditTask }) {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
@@ -73,7 +73,13 @@ export default function Column({ column, tasks, onAddTask, onDeleteTask }) {
             }}
           >
             {tasks.map((task, index) => (
-              <TaskCard key={task.id} task={task} index={index} onDeleteTask={() => onDeleteTask(task.id, column.id)} />
+              <TaskCard 
+                key={task.id} 
+                task={task} 
+                index={index} 
+                onDeleteTask={() => onDeleteTask(task.id, column.id)}
+                onEditTask={onEditTask}
+              />
             ))}
             {provided.placeholder}
           </div>
