@@ -449,8 +449,8 @@ body {
     border-right: none;
     border-top: 1px solid var(--glass-border);
     flex-direction: row;
-    justify-content: space-around;
-    padding: 0 0.5rem;
+    justify-content: flex-start;
+    padding: 0 1rem;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -459,12 +459,24 @@ body {
     -webkit-backdrop-filter: blur(16px);
     z-index: 999;
     padding-bottom: env(safe-area-inset-bottom);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+  .sidebar-nav {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   .sidebar-nav-group {
     flex-direction: row;
     gap: 0.5rem;
     width: auto;
+    flex-shrink: 0;
   }
 
   .main-content {
