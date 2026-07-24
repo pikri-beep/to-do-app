@@ -49,24 +49,15 @@ function App() {
   return (
     <div className="app-container">
       {/* Sidebar / Mobile Bottom Navigation */}
-      <div className="sidebar-nav" style={{
-        width: '90px',
-        borderRight: '1px solid var(--glass-border)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '1.5rem 0',
-        justifyContent: 'space-between',
-        gap: '1.5rem'
-      }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', width: '100%', alignItems: 'center' }}>
+      <div className="sidebar-nav">
+        <div className="sidebar-nav-group">
           <NavItem icon={<LayoutDashboard size={22} />} label="Board" active={activeTab === 'kanban'} onClick={() => setActiveTab('kanban')} title="Task Kanban Board" />
           <NavItem icon={<CalendarDays size={22} />} label="Habits" active={activeTab === 'calendar'} onClick={() => setActiveTab('calendar')} title="Multi-Habit Tracker" />
           <NavItem icon={<Timer size={22} />} label="Focus" active={activeTab === 'pomodoro'} onClick={() => setActiveTab('pomodoro')} title="Pomodoro Timer" />
         </div>
 
         {/* Bottom Actions: Theme & Notifications */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'center', width: '100%' }}>
+        <div className="sidebar-nav-group sidebar-bottom-group">
           <NavItem 
             icon={notifPermission === 'granted' ? <Bell size={20} color="var(--accent-color)" /> : <BellOff size={20} />} 
             label="Alerts"
@@ -82,14 +73,14 @@ function App() {
       <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
         <AnimatePresence mode="wait">
           {activeTab === 'kanban' && (
-            <motion.div
-              key="kanban"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-              style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: '2rem' }}
-            >
+              <motion.div
+                key="kanban"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+                className="main-content-inner"
+              >
               <div className="header" style={{ padding: '2rem 2rem 1.5rem 0' }}>
                 <div>
                   <h1>Task Board</h1>
@@ -101,27 +92,27 @@ function App() {
           )}
 
           {activeTab === 'calendar' && (
-            <motion.div
-              key="calendar"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-              style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: '2rem' }}
-            >
+              <motion.div
+                key="calendar"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+                className="main-content-inner"
+              >
               <Calendar />
             </motion.div>
           )}
 
           {activeTab === 'pomodoro' && (
-            <motion.div
-              key="pomodoro"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-              style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: '2rem' }}
-            >
+              <motion.div
+                key="pomodoro"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+                className="main-content-inner"
+              >
               <Pomodoro />
             </motion.div>
           )}
@@ -143,7 +134,7 @@ function NavItem({ icon, label, active, onClick, title }) {
         color: active ? 'white' : 'var(--text-muted)',
         border: 'none',
         width: '64px',
-        padding: '0.5rem 0',
+        padding: '0.4rem 0',
         borderRadius: '16px',
         display: 'flex',
         flexDirection: 'column',
@@ -153,6 +144,7 @@ function NavItem({ icon, label, active, onClick, title }) {
         cursor: 'pointer',
         boxShadow: active ? 'var(--shadow-glow)' : 'none',
         transition: 'all 0.2s ease',
+        WebkitTapHighlightColor: 'transparent',
       }}
     >
       {icon}
