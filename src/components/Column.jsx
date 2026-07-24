@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Droppable } from '@hello-pangea/dnd';
 import TaskCard from './TaskCard';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Inbox } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function Column({ column, tasks, onAddTask, onDeleteTask, onEditTask }) {
+export default function Column({ column, tasks, onAddTask, onDeleteTask, onMoveTask, onEditTask }) {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
@@ -72,12 +72,32 @@ export default function Column({ column, tasks, onAddTask, onDeleteTask, onEditT
               backgroundColor: snapshot.isDraggingOver ? 'rgba(255, 255, 255, 0.03)' : 'transparent',
             }}
           >
+            {tasks.length === 0 && !snapshot.isDraggingOver && (
+              <div style={{ 
+                flex: 1, 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                padding: '2rem 1rem', 
+                color: 'var(--text-muted)',
+                textAlign: 'center',
+                border: '1px dashed var(--glass-border)',
+                borderRadius: '12px'
+              }}>
+                <Inbox size={28} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
+                <span style={{ fontSize: '0.85rem' }}>No tasks in {column.title.toLowerCase()}</span>
+              </div>
+            )}
+
             {tasks.map((task, index) => (
               <TaskCard 
                 key={task.id} 
                 task={task} 
                 index={index} 
+                columnId={column.id}
                 onDeleteTask={() => onDeleteTask(task.id, column.id)}
+                onMoveTask={(targetCol) => onMoveTask(task.id, column.id, targetCol)}
                 onEditTask={onEditTask}
               />
             ))}

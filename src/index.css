@@ -286,6 +286,40 @@ body {
   border-color: var(--accent-color);
 }
 
+/* Quick Move Buttons */
+.btn-quick-move {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.2s ease;
+}
+
+.btn-quick-move:hover {
+  background: var(--accent-gradient);
+  color: white;
+  border-color: transparent;
+}
+
+.btn-quick-done {
+  background: rgba(129, 199, 132, 0.15);
+  color: #81c784;
+  border-color: rgba(129, 199, 132, 0.3);
+}
+
+.btn-quick-done:hover {
+  background: #81c784;
+  color: #000;
+}
+
 .new-task-form {
   background: rgba(0, 0, 0, 0.3);
   padding: 1.5rem;

@@ -19,7 +19,6 @@ function App() {
     localStorage.setItem('app-theme', theme);
   }, [theme]);
 
-  // Handle requesting OS Notification permissions
   const toggleNotifications = async () => {
     if (!('Notification' in window)) {
       alert('This browser does not support desktop notifications.');
@@ -27,7 +26,6 @@ function App() {
     }
 
     if (Notification.permission === 'granted') {
-      // Send a test notification
       new Notification('🔔 Daily Reminders Active', {
         body: 'You will receive real desktop reminders for your habits and focus sessions!',
       });
@@ -50,32 +48,33 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Sidebar Navigation */}
+      {/* Sidebar / Mobile Bottom Navigation */}
       <div className="sidebar-nav" style={{
-        width: '80px',
+        width: '90px',
         borderRight: '1px solid var(--glass-border)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '2rem 0',
+        padding: '1.5rem 0',
         justifyContent: 'space-between',
-        gap: '2rem'
+        gap: '1.5rem'
       }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1 }}>
-          <NavItem icon={<LayoutDashboard />} active={activeTab === 'kanban'} onClick={() => setActiveTab('kanban')} title="Kanban Board" />
-          <NavItem icon={<CalendarDays />} active={activeTab === 'calendar'} onClick={() => setActiveTab('calendar')} title="Habit Tracker" />
-          <NavItem icon={<Timer />} active={activeTab === 'pomodoro'} onClick={() => setActiveTab('pomodoro')} title="Pomodoro Timer" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', width: '100%', alignItems: 'center' }}>
+          <NavItem icon={<LayoutDashboard size={22} />} label="Board" active={activeTab === 'kanban'} onClick={() => setActiveTab('kanban')} title="Task Kanban Board" />
+          <NavItem icon={<CalendarDays size={22} />} label="Habits" active={activeTab === 'calendar'} onClick={() => setActiveTab('calendar')} title="Multi-Habit Tracker" />
+          <NavItem icon={<Timer size={22} />} label="Focus" active={activeTab === 'pomodoro'} onClick={() => setActiveTab('pomodoro')} title="Pomodoro Timer" />
         </div>
 
         {/* Bottom Actions: Theme & Notifications */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'center', width: '100%' }}>
           <NavItem 
             icon={notifPermission === 'granted' ? <Bell size={20} color="var(--accent-color)" /> : <BellOff size={20} />} 
+            label="Alerts"
             active={notifPermission === 'granted'} 
             onClick={toggleNotifications} 
             title={notifPermission === 'granted' ? 'Daily Reminders Active (Click to test)' : 'Click to enable Daily Desktop Reminders'} 
           />
-          <NavItem icon={<Palette size={20} />} active={false} onClick={cycleTheme} title={`Current Theme: ${theme}`} />
+          <NavItem icon={<Palette size={20} />} label="Theme" active={false} onClick={cycleTheme} title={`Current Theme: ${theme}`} />
         </div>
       </div>
 
@@ -132,29 +131,32 @@ function App() {
   );
 }
 
-function NavItem({ icon, active, onClick, title }) {
+function NavItem({ icon, label, active, onClick, title }) {
   return (
     <motion.button
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
       onClick={onClick}
       title={title}
       style={{
         background: active ? 'var(--accent-gradient)' : 'transparent',
         color: active ? 'white' : 'var(--text-muted)',
         border: 'none',
-        width: '48px',
-        height: '48px',
+        width: '64px',
+        padding: '0.5rem 0',
         borderRadius: '16px',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: '4px',
         cursor: 'pointer',
         boxShadow: active ? 'var(--shadow-glow)' : 'none',
-        transition: 'color 0.2s ease',
+        transition: 'all 0.2s ease',
       }}
     >
       {icon}
+      {label && <span style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.3px' }}>{label}</span>}
     </motion.button>
   );
 }

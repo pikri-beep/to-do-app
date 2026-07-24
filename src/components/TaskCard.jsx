@@ -1,9 +1,9 @@
 import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { motion } from 'framer-motion';
-import { GripVertical, Clock, Trash2, Edit2, Timer, CheckSquare } from 'lucide-react';
+import { GripVertical, Clock, Trash2, Edit2, CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 
-export default function TaskCard({ task, index, onDeleteTask, onEditTask }) {
+export default function TaskCard({ task, index, columnId, onDeleteTask, onMoveTask, onEditTask }) {
   const completedSubtasks = task.subtasks ? task.subtasks.filter(st => st.completed).length : 0;
   const totalSubtasks = task.subtasks ? task.subtasks.length : 0;
   const subtaskProgress = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
@@ -75,9 +75,7 @@ export default function TaskCard({ task, index, onDeleteTask, onEditTask }) {
             {totalSubtasks > 0 && (
               <div style={{ marginBottom: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <CheckSquare size={12} /> Subtasks
-                  </span>
+                  <span>Subtasks</span>
                   <span>{completedSubtasks}/{totalSubtasks}</span>
                 </div>
                 <div className="progress-bar-bg">
@@ -86,10 +84,52 @@ export default function TaskCard({ task, index, onDeleteTask, onEditTask }) {
               </div>
             )}
 
-            <div className="task-meta">
+            <div className="task-meta" style={{ marginTop: '0.75rem' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <Clock size={12} /> {task.dueDate ? `Due: ${task.dueDate}` : (task.date || new Date().toLocaleDateString())}
               </span>
+
+              {/* Quick Move Tap Controls (Essential for mobile touch usability!) */}
+              <div style={{ display: 'flex', gap: '0.3rem' }}>
+                {columnId === 'todo' && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); onMoveTask('inprogress'); }} 
+                    className="btn-quick-move" 
+                    title="Move to In Progress"
+                  >
+                    Progress <ArrowRight size={11} />
+                  </button>
+                )}
+
+                {columnId === 'inprogress' && (
+                  <>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onMoveTask('todo'); }} 
+                      className="btn-quick-move" 
+                      title="Move back to To Do"
+                    >
+                      <ArrowLeft size={11} /> To Do
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onMoveTask('done'); }} 
+                      className="btn-quick-move btn-quick-done" 
+                      title="Mark as Done"
+                    >
+                      <CheckCircle size={11} /> Done
+                    </button>
+                  </>
+                )}
+
+                {columnId === 'done' && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); onMoveTask('inprogress'); }} 
+                    className="btn-quick-move" 
+                    title="Re-open Task"
+                  >
+                    <ArrowLeft size={11} /> Re-open
+                  </button>
+                )}
+              </div>
             </div>
           </motion.div>
         </div>

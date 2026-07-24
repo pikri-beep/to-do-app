@@ -140,6 +140,25 @@ export default function KanbanBoard() {
     });
   };
 
+  const handleMoveTask = (taskId, sourceColId, targetColId) => {
+    setData((prevData) => {
+      const sourceCol = prevData.columns[sourceColId];
+      const targetCol = prevData.columns[targetColId];
+      
+      const sourceTaskIds = sourceCol.taskIds.filter(id => id !== taskId);
+      const targetTaskIds = [...targetCol.taskIds, taskId];
+
+      return {
+        ...prevData,
+        columns: {
+          ...prevData.columns,
+          [sourceColId]: { ...sourceCol, taskIds: sourceTaskIds },
+          [targetColId]: { ...targetCol, taskIds: targetTaskIds },
+        }
+      };
+    });
+  };
+
   const handleSaveTask = (updatedTask) => {
     setData((prevData) => ({
       ...prevData,
@@ -166,6 +185,7 @@ export default function KanbanBoard() {
                 tasks={tasks}
                 onAddTask={handleAddTask}
                 onDeleteTask={handleDeleteTask}
+                onMoveTask={handleMoveTask}
                 onEditTask={(task) => setEditingTask(task)}
               />
             );
