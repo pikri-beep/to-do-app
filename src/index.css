@@ -513,4 +513,39 @@ body {
   .calendar-view {
     padding-right: 0;
   }
+
+  /* --- Touch UX Pro Max: Enlarged Targets & Simplified details --- */
+  
+  .btn-icon {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.75rem;
+  }
+
+  .btn-quick-move {
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    justify-content: center;
+    flex: 1; /* Stretch buttons evenly */
+  }
+
+  .quick-move-actions {
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .add-task-input {
+    min-height: 50px;
+    font-size: 1.05rem;
+  }
+
+  .btn-primary, .btn-secondary {
+    min-height: 50px;
+  }
+  
+  .task-card h3 {
+    font-size: 1.15rem;
+  }
 }

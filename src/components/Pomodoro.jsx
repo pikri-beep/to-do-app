@@ -143,8 +143,8 @@ export default function Pomodoro() {
   const progress = ((totalTime - timeLeft) / totalTime) * 100;
 
   return (
-    <div style={{ flex: 1, padding: '0 2rem 2rem 0', display: 'flex', flexDirection: 'column' }}>
-      <div className="header" style={{ padding: '2rem 0 1.5rem 0' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="header">
         <div>
           <h1>Pomodoro Focus</h1>
           <p>Supercharge your productivity with time boxing</p>

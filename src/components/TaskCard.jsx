@@ -35,35 +35,30 @@ export default function TaskCard({ task, index, columnId, onDeleteTask, onMoveTa
               borderColor: snapshot.isDragging ? 'var(--accent-color)' : 'var(--glass-border)'
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                 <span className={`tag-badge ${tagClass}`}>{task.tag || 'Work'}</span>
                 {task.pomodoros > 0 && (
-                  <span style={{ fontSize: '0.75rem', color: '#ff6b6b', display: 'flex', alignItems: 'center', gap: '2px', fontWeight: 600 }}>
+                  <span style={{ fontSize: '0.85rem', color: '#ff6b6b', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
                     🍅 {task.pomodoros}
                   </span>
                 )}
               </div>
               
-              <div style={{ display: 'flex', gap: '0.2rem' }}>
+              <div style={{ display: 'flex', gap: '0.25rem' }}>
                 <button 
                   className="btn-icon" 
                   onClick={(e) => { e.stopPropagation(); onEditTask(task); }}
-                  style={{ color: 'var(--text-muted)' }}
                   title="Edit Task"
                 >
-                  <Edit2 size={14} />
+                  <Edit2 size={16} />
                 </button>
                 <button 
                   className="btn-icon" 
                   onClick={(e) => { e.stopPropagation(); onDeleteTask(); }}
-                  style={{ color: 'var(--text-muted)' }}
                   title="Delete Task"
                 >
-                  <Trash2 size={14} />
-                </button>
-                <button className="btn-icon" style={{ cursor: 'grab', color: 'var(--text-muted)' }}>
-                  <GripVertical size={14} />
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>
@@ -84,20 +79,20 @@ export default function TaskCard({ task, index, columnId, onDeleteTask, onMoveTa
               </div>
             )}
 
-            <div className="task-meta" style={{ marginTop: '0.75rem' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Clock size={12} /> {task.dueDate ? `Due: ${task.dueDate}` : (task.date || new Date().toLocaleDateString())}
+            <div className="task-meta" style={{ marginTop: '1rem', borderTop: '1px solid var(--glass-border)', paddingTop: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}>
+                <Clock size={14} /> {task.dueDate || task.date || new Date().toLocaleDateString()}
               </span>
 
               {/* Quick Move Tap Controls (Essential for mobile touch usability!) */}
-              <div style={{ display: 'flex', gap: '0.3rem' }}>
+              <div className="quick-move-actions" style={{ display: 'flex', gap: '0.5rem' }}>
                 {columnId === 'todo' && (
                   <button 
                     onClick={(e) => { e.stopPropagation(); onMoveTask('inprogress'); }} 
                     className="btn-quick-move" 
                     title="Move to In Progress"
                   >
-                    Progress <ArrowRight size={11} />
+                    Start <ArrowRight size={14} />
                   </button>
                 )}
 
@@ -108,14 +103,14 @@ export default function TaskCard({ task, index, columnId, onDeleteTask, onMoveTa
                       className="btn-quick-move" 
                       title="Move back to To Do"
                     >
-                      <ArrowLeft size={11} /> To Do
+                      <ArrowLeft size={14} /> To Do
                     </button>
                     <button 
                       onClick={(e) => { e.stopPropagation(); onMoveTask('done'); }} 
                       className="btn-quick-move btn-quick-done" 
                       title="Mark as Done"
                     >
-                      <CheckCircle size={11} /> Done
+                      <CheckCircle size={14} /> Done
                     </button>
                   </>
                 )}
@@ -126,7 +121,7 @@ export default function TaskCard({ task, index, columnId, onDeleteTask, onMoveTa
                     className="btn-quick-move" 
                     title="Re-open Task"
                   >
-                    <ArrowLeft size={11} /> Re-open
+                    <ArrowLeft size={14} /> Re-open
                   </button>
                 )}
               </div>
