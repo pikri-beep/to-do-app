@@ -51,7 +51,7 @@ function App() {
   return (
     <div className="app-container">
       {/* Sidebar Navigation */}
-      <div style={{
+      <div className="sidebar-nav" style={{
         width: '80px',
         borderRight: '1px solid var(--glass-border)',
         display: 'flex',
@@ -80,7 +80,7 @@ function App() {
       </div>
 
       {/* Main Content Area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+      <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
         <AnimatePresence mode="wait">
           {activeTab === 'kanban' && (
             <motion.div
