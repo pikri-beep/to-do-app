@@ -1,0 +1,16 @@
+{
+  "short_name": "GoalToDo",
+  "name": "Goal & Habit Tracker",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#09090e",
+  "theme_color": "#8a2be2",
+  "display": "standalone",
+  "orientation": "portrait"
+}

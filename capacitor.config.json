@@ -1,0 +1,8 @@
+{
+  "appId": "com.goal.todo",
+  "appName": "Goal & Habit Tracker",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
