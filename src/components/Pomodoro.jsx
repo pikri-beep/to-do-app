@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw, Volume2, Target } from 'lucide-react';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 export default function Pomodoro() {
   const [workDuration, setWorkDuration] = useState(25);
@@ -58,13 +59,21 @@ export default function Pomodoro() {
     }
   };
 
-  // Real OS Desktop Notification trigger
-  const sendDesktopNotification = (title, body) => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, {
-        body,
-        icon: '/favicon.svg'
+  // Real OS Desktop / Native Mobile Notification trigger
+  const sendNotification = async (title, body) => {
+    try {
+      await LocalNotifications.schedule({
+        notifications: [{
+          title,
+          body,
+          id: Date.now(),
+          schedule: { at: new Date(Date.now() + 1000) }
+        }]
       });
+    } catch (e) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { body, icon: '/favicon.svg' });
+      }
     }
   };
 
@@ -72,7 +81,7 @@ export default function Pomodoro() {
     playChimeSound();
 
     if (mode === 'work') {
-      sendDesktopNotification('🍅 Pomodoro Complete!', 'Great work! Take a well-deserved short break.');
+      sendNotification('🍅 Pomodoro Complete!', 'Great work! Take a well-deserved short break.');
 
       // Increment task pomodoro count in local storage
       if (selectedTaskId) {
@@ -94,7 +103,7 @@ export default function Pomodoro() {
       setMode('break');
       setTimeLeft(breakDuration * 60);
     } else {
-      sendDesktopNotification('🔔 Break Finished!', 'Time to lock back in for your next focus session.');
+      sendNotification('🔔 Break Finished!', 'Time to lock back in for your next focus session.');
       setMode('work');
       setTimeLeft(workDuration * 60);
     }
