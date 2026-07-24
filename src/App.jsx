@@ -3,18 +3,44 @@ import KanbanBoard from './components/KanbanBoard';
 import Calendar from './components/Calendar';
 import Pomodoro from './components/Pomodoro';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, CalendarDays, Timer, Palette } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, Timer, Palette, Bell, BellOff } from 'lucide-react';
 
 function App() {
   const [activeTab, setActiveTab] = useState('kanban');
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('app-theme') || 'violet';
   });
+  const [notifPermission, setNotifPermission] = useState(() => {
+    return 'Notification' in window ? Notification.permission : 'denied';
+  });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('app-theme', theme);
   }, [theme]);
+
+  // Handle requesting OS Notification permissions
+  const toggleNotifications = async () => {
+    if (!('Notification' in window)) {
+      alert('This browser does not support desktop notifications.');
+      return;
+    }
+
+    if (Notification.permission === 'granted') {
+      // Send a test notification
+      new Notification('🔔 Daily Reminders Active', {
+        body: 'You will receive real desktop reminders for your habits and focus sessions!',
+      });
+    } else {
+      const permission = await Notification.requestPermission();
+      setNotifPermission(permission);
+      if (permission === 'granted') {
+        new Notification('🎉 Notifications Enabled!', {
+          body: 'Real desktop alerts are now active for your tasks and daily habits.',
+        });
+      }
+    }
+  };
 
   const cycleTheme = () => {
     const themes = ['violet', 'cyan', 'emerald', 'rose'];
@@ -32,7 +58,7 @@ function App() {
         flexDirection: 'column',
         alignItems: 'center',
         padding: '2rem 0',
-        justifySpace: 'space-between',
+        justifyContent: 'space-between',
         gap: '2rem'
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1 }}>
@@ -41,8 +67,14 @@ function App() {
           <NavItem icon={<Timer />} active={activeTab === 'pomodoro'} onClick={() => setActiveTab('pomodoro')} title="Pomodoro Timer" />
         </div>
 
-        {/* Theme Accent Picker Button */}
-        <div>
+        {/* Bottom Actions: Theme & Notifications */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+          <NavItem 
+            icon={notifPermission === 'granted' ? <Bell size={20} color="var(--accent-color)" /> : <BellOff size={20} />} 
+            active={notifPermission === 'granted'} 
+            onClick={toggleNotifications} 
+            title={notifPermission === 'granted' ? 'Daily Reminders Active (Click to test)' : 'Click to enable Daily Desktop Reminders'} 
+          />
           <NavItem icon={<Palette size={20} />} active={false} onClick={cycleTheme} title={`Current Theme: ${theme}`} />
         </div>
       </div>

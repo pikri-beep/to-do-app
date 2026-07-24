@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw, Volume2, Target } from 'lucide-react';
 
@@ -30,7 +30,7 @@ export default function Pomodoro() {
     }
   }, []);
 
-  // Web Audio API synth for notification chime (Zero external audio files required)
+  // Web Audio API synth for notification chime
   const playChimeSound = () => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -42,8 +42,8 @@ export default function Pomodoro() {
       const gain = ctx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(523.25, now); // C5
-      osc.frequency.exponentialRampToValueAtTime(1046.5, now + 0.3); // C6
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.exponentialRampToValueAtTime(1046.5, now + 0.3);
 
       gain.gain.setValueAtTime(0.3, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
@@ -58,10 +58,22 @@ export default function Pomodoro() {
     }
   };
 
+  // Real OS Desktop Notification trigger
+  const sendDesktopNotification = (title, body) => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, {
+        body,
+        icon: '/favicon.svg'
+      });
+    }
+  };
+
   const handleSessionComplete = () => {
     playChimeSound();
 
     if (mode === 'work') {
+      sendDesktopNotification('🍅 Pomodoro Complete!', 'Great work! Take a well-deserved short break.');
+
       // Increment task pomodoro count in local storage
       if (selectedTaskId) {
         try {
@@ -71,7 +83,6 @@ export default function Pomodoro() {
             if (data.tasks && data.tasks[selectedTaskId]) {
               data.tasks[selectedTaskId].pomodoros = (data.tasks[selectedTaskId].pomodoros || 0) + 1;
               localStorage.setItem('kanban-data', JSON.stringify(data));
-              // Update local state to reflect
               setTasks(Object.values(data.tasks));
             }
           }
@@ -83,6 +94,7 @@ export default function Pomodoro() {
       setMode('break');
       setTimeLeft(breakDuration * 60);
     } else {
+      sendDesktopNotification('🔔 Break Finished!', 'Time to lock back in for your next focus session.');
       setMode('work');
       setTimeLeft(workDuration * 60);
     }
