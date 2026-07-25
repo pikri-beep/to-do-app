@@ -240,9 +240,16 @@ function App() {
                         {copied ? <CheckCircle2 size={20} color="#81c784" /> : <Copy size={20} color="var(--text-muted)" />}
                       </div>
                     )}
-                    <p style={{ color: 'var(--text-secondary)', marginTop: '1rem', fontSize: '0.85rem' }}>
+                    <p style={{ color: 'var(--text-secondary)', marginTop: '1rem', marginBottom: '1.5rem', fontSize: '0.85rem' }}>
                       Waiting for connection...
                     </p>
+                    <button 
+                      className="btn-secondary" 
+                      style={{ width: '100%', justifyContent: 'center' }} 
+                      onClick={() => syncInfo.disconnect()}
+                    >
+                      Cancel
+                    </button>
                   </div>
                 )}
 

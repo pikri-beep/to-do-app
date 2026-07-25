@@ -35,6 +35,29 @@ export default function Calendar() {
     localStorage.setItem('multi-habits-records', JSON.stringify(completedDaysMap));
   }, [completedDaysMap]);
 
+  useEffect(() => {
+    const handleSync = () => {
+      const savedHabits = localStorage.getItem('multi-habits-list');
+      if (savedHabits) {
+        try {
+          setHabits(JSON.parse(savedHabits));
+        } catch (e) {
+          console.error('Failed to parse synced habits list', e);
+        }
+      }
+      const savedRecords = localStorage.getItem('multi-habits-records');
+      if (savedRecords) {
+        try {
+          setCompletedDaysMap(JSON.parse(savedRecords));
+        } catch (e) {
+          console.error('Failed to parse synced habits records', e);
+        }
+      }
+    };
+    window.addEventListener('sync-data-updated', handleSync);
+    return () => window.removeEventListener('sync-data-updated', handleSync);
+  }, []);
+
   const activeHabit = habits.find(h => h.id === activeHabitId) || habits[0];
   const activeRecords = (completedDaysMap && activeHabit) ? (completedDaysMap[activeHabit.id] || []) : [];
 

@@ -14,21 +14,26 @@ export default function Pomodoro() {
 
   // Load available tasks from local storage
   useEffect(() => {
-    const saved = localStorage.getItem('kanban-data');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.tasks) {
-          const taskList = Object.values(parsed.tasks);
-          setTasks(taskList);
-          if (taskList.length > 0 && !selectedTaskId) {
-            setSelectedTaskId(taskList[0].id);
+    const loadTasks = () => {
+      const saved = localStorage.getItem('kanban-data');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.tasks) {
+            const taskList = Object.values(parsed.tasks);
+            setTasks(taskList);
+            if (taskList.length > 0 && !selectedTaskId) {
+              setSelectedTaskId(taskList[0].id);
+            }
           }
+        } catch (e) {
+          console.error('Failed to load tasks for pomodoro', e);
         }
-      } catch (e) {
-        console.error('Failed to load tasks for pomodoro', e);
       }
-    }
+    };
+    loadTasks();
+    window.addEventListener('sync-data-updated', loadTasks);
+    return () => window.removeEventListener('sync-data-updated', loadTasks);
   }, []);
 
   // Web Audio API synth for notification chime

@@ -36,11 +36,23 @@ export default function useSync() {
     try {
       if (data.type === 'sync') {
         const payload = data.payload;
-        if (payload['kanban-data']) localStorage.setItem('kanban-data', payload['kanban-data']);
-        if (payload['multi-habits-list']) localStorage.setItem('multi-habits-list', payload['multi-habits-list']);
-        if (payload['multi-habits-records']) localStorage.setItem('multi-habits-records', payload['multi-habits-records']);
-        // Force window reload to update all react states cleanly without complex context prop-drilling
-        window.location.reload();
+        let updated = false;
+        if (payload['kanban-data']) {
+          localStorage.setItem('kanban-data', payload['kanban-data']);
+          updated = true;
+        }
+        if (payload['multi-habits-list']) {
+          localStorage.setItem('multi-habits-list', payload['multi-habits-list']);
+          updated = true;
+        }
+        if (payload['multi-habits-records']) {
+          localStorage.setItem('multi-habits-records', payload['multi-habits-records']);
+          updated = true;
+        }
+        if (updated) {
+          // Notify React components to reload state reactively without reloading the window
+          window.dispatchEvent(new CustomEvent('sync-data-updated', { detail: payload }));
+        }
       }
     } catch (e) {
       console.error('Failed to parse sync data', e);

@@ -48,6 +48,21 @@ export default function KanbanBoard() {
     localStorage.setItem('kanban-data', JSON.stringify(data));
   }, [data]);
 
+  useEffect(() => {
+    const handleSync = () => {
+      const saved = localStorage.getItem('kanban-data');
+      if (saved) {
+        try {
+          setData(JSON.parse(saved));
+        } catch (e) {
+          console.error('Failed to parse synced kanban data', e);
+        }
+      }
+    };
+    window.addEventListener('sync-data-updated', handleSync);
+    return () => window.removeEventListener('sync-data-updated', handleSync);
+  }, []);
+
   const handleDragEnd = (result) => {
     const { destination, source, draggableId } = result;
 
