@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, addMonths, subMonths } from 'date-fns';
 import { CheckCircle2, Circle, ChevronLeft, ChevronRight, Plus, Trash2, Flame } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,17 +26,25 @@ export default function Calendar() {
 
   const [newHabitTitle, setNewHabitTitle] = useState('');
   const [isAddingHabit, setIsAddingHabit] = useState(false);
+  const isRemoteUpdateRef = useRef(false);
 
   useEffect(() => {
     localStorage.setItem('multi-habits-list', JSON.stringify(habits));
+    if (!isRemoteUpdateRef.current) {
+      window.dispatchEvent(new CustomEvent('local-data-changed'));
+    }
   }, [habits]);
 
   useEffect(() => {
     localStorage.setItem('multi-habits-records', JSON.stringify(completedDaysMap));
+    if (!isRemoteUpdateRef.current) {
+      window.dispatchEvent(new CustomEvent('local-data-changed'));
+    }
   }, [completedDaysMap]);
 
   useEffect(() => {
     const handleSync = () => {
+      isRemoteUpdateRef.current = true;
       const savedHabits = localStorage.getItem('multi-habits-list');
       if (savedHabits) {
         try {
@@ -53,6 +61,9 @@ export default function Calendar() {
           console.error('Failed to parse synced habits records', e);
         }
       }
+      setTimeout(() => {
+        isRemoteUpdateRef.current = false;
+      }, 50);
     };
     window.addEventListener('sync-data-updated', handleSync);
     return () => window.removeEventListener('sync-data-updated', handleSync);

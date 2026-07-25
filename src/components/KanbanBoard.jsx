@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DragDropContext } from '@hello-pangea/dnd';
 import Column from './Column';
 import TaskModal from './TaskModal';
@@ -43,9 +43,14 @@ export default function KanbanBoard() {
   });
 
   const [editingTask, setEditingTask] = useState(null);
+  const isRemoteUpdateRef = useRef(false);
 
   useEffect(() => {
     localStorage.setItem('kanban-data', JSON.stringify(data));
+    if (!isRemoteUpdateRef.current) {
+      window.dispatchEvent(new CustomEvent('local-data-changed'));
+    }
+    isRemoteUpdateRef.current = false;
   }, [data]);
 
   useEffect(() => {
@@ -53,6 +58,7 @@ export default function KanbanBoard() {
       const saved = localStorage.getItem('kanban-data');
       if (saved) {
         try {
+          isRemoteUpdateRef.current = true;
           setData(JSON.parse(saved));
         } catch (e) {
           console.error('Failed to parse synced kanban data', e);
