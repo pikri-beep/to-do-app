@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw, Volume2, Target } from 'lucide-react';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { vibrateLight, vibrateAlarm } from '../utils/haptics';
 
 export default function Pomodoro() {
   const [workDuration, setWorkDuration] = useState(25);
@@ -84,6 +85,7 @@ export default function Pomodoro() {
 
   const handleSessionComplete = () => {
     playChimeSound();
+    vibrateAlarm();
 
     if (mode === 'work') {
       sendNotification('🍅 Pomodoro Complete!', 'Great work! Take a well-deserved short break.');
@@ -127,14 +129,19 @@ export default function Pomodoro() {
     return () => clearInterval(interval);
   }, [isActive, timeLeft, mode, workDuration, breakDuration, selectedTaskId]);
 
-  const toggleTimer = () => setIsActive(!isActive);
+  const toggleTimer = () => {
+    vibrateLight();
+    setIsActive(!isActive);
+  };
   
   const resetTimer = () => {
+    vibrateLight();
     setIsActive(false);
     setTimeLeft(mode === 'work' ? workDuration * 60 : breakDuration * 60);
   };
 
   const switchMode = (newMode) => {
+    vibrateLight();
     setMode(newMode);
     setIsActive(false);
     setTimeLeft(newMode === 'work' ? workDuration * 60 : breakDuration * 60);

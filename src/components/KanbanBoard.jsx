@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DragDropContext } from '@hello-pangea/dnd';
 import Column from './Column';
 import TaskModal from './TaskModal';
+import { vibrateMedium, vibrateSuccess, vibrateLight } from '../utils/haptics';
 
 const initialData = {
   tasks: {
@@ -98,6 +99,12 @@ export default function KanbanBoard() {
     }
 
     const startTaskIds = Array.from(start.taskIds);
+    if (finish.id === 'done') {
+      vibrateSuccess();
+    } else {
+      vibrateMedium();
+    }
+
     startTaskIds.splice(source.index, 1);
     const newStart = { ...start, taskIds: startTaskIds };
 
@@ -116,6 +123,7 @@ export default function KanbanBoard() {
   };
 
   const handleAddTask = (columnId, title) => {
+    vibrateLight();
     const newTaskId = `task-${Date.now()}`;
     const newTask = {
       id: newTaskId,
@@ -144,6 +152,7 @@ export default function KanbanBoard() {
   };
 
   const handleDeleteTask = (taskId, columnId) => {
+    vibrateMedium();
     setData((prevData) => {
       const column = prevData.columns[columnId];
       const newTaskIds = column.taskIds.filter(id => id !== taskId);
@@ -162,6 +171,11 @@ export default function KanbanBoard() {
   };
 
   const handleMoveTask = (taskId, sourceColId, targetColId) => {
+    if (targetColId === 'done') {
+      vibrateSuccess();
+    } else {
+      vibrateMedium();
+    }
     setData((prevData) => {
       const sourceCol = prevData.columns[sourceColId];
       const targetCol = prevData.columns[targetColId];

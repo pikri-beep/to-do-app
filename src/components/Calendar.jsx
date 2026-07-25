@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, addMonths, subMonths } from 'date-fns';
 import { CheckCircle2, Circle, ChevronLeft, ChevronRight, Plus, Trash2, Flame } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { vibrateSuccess, vibrateLight } from '../utils/haptics';
 
 const DEFAULT_HABITS = [
   { id: 'h1', title: 'Code & Build', color: '#8a2be2' },
@@ -83,7 +84,14 @@ export default function Calendar() {
     if (!activeHabit) return;
     const dateStr = format(day, 'yyyy-MM-dd');
     const habitRecords = completedDaysMap[activeHabit.id] || [];
+    const isAdding = !habitRecords.includes(dateStr);
     
+    if (isAdding) {
+      vibrateSuccess();
+    } else {
+      vibrateLight();
+    }
+
     const updated = habitRecords.includes(dateStr)
       ? habitRecords.filter(d => d !== dateStr)
       : [...habitRecords, dateStr];
