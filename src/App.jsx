@@ -3,8 +3,9 @@ import KanbanBoard from './components/KanbanBoard';
 import Calendar from './components/Calendar';
 import Pomodoro from './components/Pomodoro';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, CalendarDays, Timer, Palette, Bell, BellOff, Smartphone, Copy, CheckCircle2, Radio, X, Settings } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, Timer, Palette, Bell, BellOff, Smartphone, Copy, CheckCircle2, Radio, X, Settings, Maximize, Minimize, QrCode } from 'lucide-react';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { QRCodeSVG } from 'qrcode.react';
 import useSync from './hooks/useSync';
 import { vibrateLight, vibrateMedium, vibrateSuccess, vibrateAlarm, getHapticSettings, saveHapticSettings } from './utils/haptics';
 
@@ -16,6 +17,7 @@ function App() {
   const [notifPermission, setNotifPermission] = useState(() => {
     return 'Notification' in window ? Notification.permission : 'denied';
   });
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const syncInfo = useSync();
   const [showSyncModal, setShowSyncModal] = useState(false);
@@ -23,6 +25,27 @@ function App() {
   const [hapticSettings, setHapticSettingsState] = useState(getHapticSettings);
   const [syncInput, setSyncInput] = useState('');
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    vibrateLight();
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
 
   const updateHaptics = (newSettings) => {
     setHapticSettingsState(newSettings);
@@ -118,7 +141,7 @@ function App() {
           <NavItem icon={<Timer size={22} />} label="Focus" active={activeTab === 'pomodoro'} onClick={() => handleTabChange('pomodoro')} title="Pomodoro Timer" />
         </div>
 
-        {/* Bottom Actions: Sync & Settings */}
+        {/* Bottom Actions: Sync, Fullscreen & Settings */}
         <div className="sidebar-nav-group sidebar-bottom-group">
           <NavItem 
             icon={<Smartphone size={20} color={syncInfo.status === 'connected' ? '#81c784' : 'var(--text-muted)'} />} 
@@ -126,6 +149,13 @@ function App() {
             active={showSyncModal} 
             onClick={() => { vibrateLight(); setShowSyncModal(true); }} 
             title="Link Devices (WebRTC Sync)" 
+          />
+          <NavItem 
+            icon={isFullscreen ? <Minimize size={20} color="var(--accent-color)" /> : <Maximize size={20} />} 
+            label={isFullscreen ? "Exit Full" : "Full View"} 
+            active={isFullscreen} 
+            onClick={toggleFullscreen} 
+            title="Toggle Desktop Fullscreen Mode" 
           />
           <NavItem 
             icon={<Settings size={22} color={showSettingsModal ? "white" : "var(--text-muted)"} />} 
@@ -244,21 +274,36 @@ function App() {
                 )}
 
                 {(syncInfo.status === 'hosting' || syncInfo.status === 'connecting') && (
-                  <div style={{ padding: '1rem', textAlign: 'center' }}>
-                    <h4 style={{ fontSize: '1.2rem', color: 'var(--accent-color)', marginBottom: '0.75rem' }}>
-                      {syncInfo.status === 'hosting' ? 'Your Sync Code' : 'Connecting...'}
+                  <div style={{ padding: '0.5rem 0', textAlign: 'center' }}>
+                    <h4 style={{ fontSize: '1.1rem', color: 'var(--accent-color)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                      <QrCode size={20} />
+                      {syncInfo.status === 'hosting' ? 'Scan QR Code or Enter Phrase' : 'Connecting...'}
                     </h4>
                     
                     {syncInfo.peerId && (
-                      <div 
-                        onClick={copyHostCode}
-                        style={{ 
-                          background: 'rgba(0,0,0,0.3)', padding: '0.85rem', borderRadius: '12px', border: '1px dashed var(--accent-color)',
-                          fontSize: '1.1rem', letterSpacing: '1px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.75rem'
-                        }}
-                      >
-                        {syncInfo.peerId}
-                        {copied ? <CheckCircle2 size={18} color="#81c784" /> : <Copy size={18} color="var(--text-muted)" />}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', margin: '1rem 0' }}>
+                        {/* Live QR Code Display */}
+                        <div style={{ background: '#ffffff', padding: '1rem', borderRadius: '18px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)', display: 'inline-flex', border: '3px solid var(--accent-color)' }}>
+                          <QRCodeSVG 
+                            value={syncInfo.peerId} 
+                            size={165} 
+                            bgColor="#ffffff" 
+                            fgColor="#12121e" 
+                            level="H" 
+                            includeMargin={false} 
+                          />
+                        </div>
+
+                        <div 
+                          onClick={copyHostCode}
+                          style={{ 
+                            background: 'rgba(0,0,0,0.3)', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px dashed var(--accent-color)',
+                            fontSize: '1.05rem', letterSpacing: '1px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%'
+                          }}
+                        >
+                          <span style={{ fontWeight: 600, color: 'white' }}>{syncInfo.peerId}</span>
+                          {copied ? <CheckCircle2 size={18} color="#81c784" /> : <Copy size={18} color="var(--text-muted)" />}
+                        </div>
                       </div>
                     )}
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '1.25rem' }}>
@@ -500,6 +545,30 @@ function App() {
                         style={{ padding: '0.35rem 0.9rem', fontSize: '0.85rem' }}
                       >
                         {notifPermission === 'granted' ? 'Test Alert' : 'Enable'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Section 4: Fullscreen & Display */}
+                  <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                      <Maximize size={18} color="var(--accent-color)" />
+                      <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>Desktop Display Mode</h3>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+                      <div>
+                        <span style={{ fontWeight: 600, fontSize: '0.9rem', display: 'block' }}>Fullscreen View</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          {isFullscreen ? 'Currently in Fullscreen' : 'Standard Window View'}
+                        </span>
+                      </div>
+                      <button 
+                        className="btn-secondary"
+                        onClick={toggleFullscreen}
+                        style={{ padding: '0.35rem 0.9rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                      >
+                        {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+                        {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
                       </button>
                     </div>
                   </div>
