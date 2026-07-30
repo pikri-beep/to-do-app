@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw, Volume2, Target } from 'lucide-react';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { vibrateLight, vibrateAlarm } from '../utils/haptics';
+import useGamification from '../hooks/useGamification';
 
 export default function Pomodoro() {
   const [workDuration, setWorkDuration] = useState(25);
@@ -12,19 +13,21 @@ export default function Pomodoro() {
   const [mode, setMode] = useState('work'); // 'work' | 'break'
   const [selectedTaskId, setSelectedTaskId] = useState('');
   const [tasks, setTasks] = useState([]);
+  
+  const { completePomodoro } = useGamification();
 
   // Load available tasks from local storage
   useEffect(() => {
     const loadTasks = () => {
-      const saved = localStorage.getItem('kanban-data');
+      const saved = localStorage.getItem('quest-data');
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (parsed && parsed.tasks) {
-            const taskList = Object.values(parsed.tasks);
-            setTasks(taskList);
-            if (taskList.length > 0 && !selectedTaskId) {
-              setSelectedTaskId(taskList[0].id);
+          if (Array.isArray(parsed)) {
+            const activeQuests = parsed.filter(q => !q.completed);
+            setTasks(activeQuests);
+            if (activeQuests.length > 0 && !selectedTaskId) {
+              setSelectedTaskId(activeQuests[0].id);
             }
           }
         } catch (e) {
@@ -89,17 +92,19 @@ export default function Pomodoro() {
 
     if (mode === 'work') {
       sendNotification('🍅 Pomodoro Complete!', 'Great work! Take a well-deserved short break.');
+      completePomodoro();
 
       // Increment task pomodoro count in local storage
       if (selectedTaskId) {
         try {
-          const saved = localStorage.getItem('kanban-data');
+          const saved = localStorage.getItem('quest-data');
           if (saved) {
             const data = JSON.parse(saved);
-            if (data.tasks && data.tasks[selectedTaskId]) {
-              data.tasks[selectedTaskId].pomodoros = (data.tasks[selectedTaskId].pomodoros || 0) + 1;
-              localStorage.setItem('kanban-data', JSON.stringify(data));
-              setTasks(Object.values(data.tasks));
+            const questIndex = data.findIndex(q => q.id === selectedTaskId);
+            if (questIndex > -1) {
+              data[questIndex].pomodoros = (data[questIndex].pomodoros || 0) + 1;
+              localStorage.setItem('quest-data', JSON.stringify(data));
+              setTasks(data.filter(q => !q.completed));
             }
           }
         } catch (e) {

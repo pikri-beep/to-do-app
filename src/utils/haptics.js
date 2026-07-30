@@ -1,4 +1,5 @@
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
+import { Capacitor } from '@capacitor/core';
 
 const DEFAULT_SETTINGS = {
   enabled: true,
@@ -29,7 +30,7 @@ export const saveHapticSettings = (settings) => {
 // Multiplier based on intensity
 const getDuration = (baseMs, intensity) => {
   switch (intensity) {
-    case 'soft': return Math.round(baseMs * 0.6);
+    case 'soft': return Math.max(15, Math.round(baseMs * 0.6));
     case 'strong': return Math.round(baseMs * 1.5);
     case 'medium':
     default: return baseMs;
@@ -47,6 +48,31 @@ const fallbackVibrate = (pattern) => {
   }
 };
 
+// Direct native vibration for maximum device compatibility across Android OEMs
+const nativeVibrate = async (durationMs) => {
+  try {
+    await Haptics.vibrate({ duration: durationMs });
+  } catch (e) {
+    fallbackVibrate(durationMs);
+  }
+};
+
+// Pattern player for success/alarm rhythms
+const playPattern = async (durations) => {
+  const isNative = Capacitor.isNativePlatform();
+  if (isNative) {
+    for (let i = 0; i < durations.length; i++) {
+      if (i % 2 === 0) {
+        await nativeVibrate(durations[i]);
+      } else {
+        await new Promise((res) => setTimeout(res, durations[i]));
+      }
+    }
+  } else {
+    fallbackVibrate(durations);
+  }
+};
+
 /**
  * Soft tick for button taps, tab navigation, small interactions
  */
@@ -54,6 +80,7 @@ export const vibrateLight = async () => {
   const settings = getHapticSettings();
   if (!settings.enabled || !settings.vibrateOnTouch) return;
 
+  const ms = getDuration(20, settings.intensity);
   try {
     const style = settings.intensity === 'soft' 
       ? ImpactStyle.Light 
@@ -61,9 +88,11 @@ export const vibrateLight = async () => {
         ? ImpactStyle.Heavy 
         : ImpactStyle.Medium;
     await Haptics.impact({ style });
+    if (Capacitor.isNativePlatform()) {
+      await nativeVibrate(ms);
+    }
   } catch (e) {
-    // Fallback to web vibration
-    fallbackVibrate(getDuration(12, settings.intensity));
+    fallbackVibrate(ms);
   }
 };
 
@@ -74,10 +103,14 @@ export const vibrateMedium = async () => {
   const settings = getHapticSettings();
   if (!settings.enabled || !settings.vibrateOnTouch) return;
 
+  const ms = getDuration(40, settings.intensity);
   try {
     await Haptics.impact({ style: ImpactStyle.Heavy });
+    if (Capacitor.isNativePlatform()) {
+      await nativeVibrate(ms);
+    }
   } catch (e) {
-    fallbackVibrate(getDuration(35, settings.intensity));
+    fallbackVibrate(ms);
   }
 };
 
@@ -88,12 +121,15 @@ export const vibrateSuccess = async () => {
   const settings = getHapticSettings();
   if (!settings.enabled || !settings.vibrateOnSuccess) return;
 
+  const dur1 = getDuration(35, settings.intensity);
+  const dur2 = getDuration(45, settings.intensity);
+  const pattern = [dur1, 50, dur2];
+
   try {
     await Haptics.notification({ type: NotificationType.Success });
+    await playPattern(pattern);
   } catch (e) {
-    const dur1 = getDuration(35, settings.intensity);
-    const dur2 = getDuration(35, settings.intensity);
-    fallbackVibrate([dur1, 50, dur2]);
+    fallbackVibrate(pattern);
   }
 };
 
@@ -104,11 +140,15 @@ export const vibrateAlarm = async () => {
   const settings = getHapticSettings();
   if (!settings.enabled || !settings.vibrateOnAlarm) return;
 
+  const dur1 = getDuration(80, settings.intensity);
+  const dur2 = getDuration(140, settings.intensity);
+  const pattern = [dur1, 60, dur1, 60, dur2];
+
   try {
     await Haptics.notification({ type: NotificationType.Warning });
+    await playPattern(pattern);
   } catch (e) {
-    const dur1 = getDuration(80, settings.intensity);
-    const dur2 = getDuration(150, settings.intensity);
-    fallbackVibrate([dur1, 60, dur1, 60, dur2]);
+    fallbackVibrate(pattern);
   }
 };
+
